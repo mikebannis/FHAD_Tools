@@ -1,3 +1,17 @@
+"""
+Measures floodplain (polygon) top width at a cross section (polyline) using arcpy. This 
+creates a new shapefile/feature class of polylines that represent the top width of the 
+floodplain. An attribute field (ERR_FIELD) is created and indicates if the the measurement
+was successfull or not. 
+
+Requires ArcGIS version >= 10.2.1
+
+tw_script.py contains the arcpy toolbox interface for this file.
+
+Mike Bannister
+mike.bannister@respec.com
+2017
+"""
 print 'importing arcpy... ',
 import arcpy
 

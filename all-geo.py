@@ -1,20 +1,23 @@
 """
 all-geo.py v0.01
-9/20/16 MJB
 
 Runs tools for n-value, iefa, and obstruction review. Applies appropriate style
 and adds layers to current mxd. This must be run from arcgis.
+
+Mike Bannister
+mike.bannister@respec.com
+2017
 """
 
 import arcpy
 import sys
 import os
 path = os.path.join(os.path.dirname(__file__))
-arcpy.AddWarning('test test test')
-arcpy.AddWarning(str(path))
-sys.path.insert(0, path + '/Block Obs Review')
-sys.path.insert(0, path + '/IEFA Review')
-sys.path.insert(0, path + '/N-value Review')
+#arcpy.AddWarning('test test test')
+#arcpy.AddWarning(str(path))
+sys.path.insert(0, os.path.join(path, 'Block Obs Review'))
+sys.path.insert(0, os.path.join(path, 'IEFA Review'))
+sys.path.insert(0, os.path.join(path, 'N-value Review'))
 import blocked_review
 import iefa_review
 import n_value_review

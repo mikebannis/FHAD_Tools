@@ -1,3 +1,10 @@
+"""
+Creates BFE lines based on HEC-RAS output. Includes interface to ArcGIS toolbox.
+
+Mike Bannister 2017
+mike.bannister@respec.com
+"""
+
 import arcpy
 import collections
 import math

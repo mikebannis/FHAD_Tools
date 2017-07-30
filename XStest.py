@@ -1,3 +1,11 @@
+"""
+Creates perpendicular lines along an alignment to visually test HEC-RAS cross section reach
+lengths. Includes interface to ArcGIS toolbox
+
+Mike Bannister
+mike.bannister@respec.com
+2017
+"""
 import bfetool
 import os
 

@@ -1,8 +1,15 @@
+"""
+Creates lines representing HEC-RAS obstructions from RAS geometry file
+
+Mike Bannister
+mike.bannister@respec.com
+2017
+"""
 import math
 import arcpy
 import os
 import sys
-path = os.path.join(os.path.dirname(__file__), '../parserasgeo')
+path = os.path.join(os.path.dirname(__file__), '../../parserasgeo')
 sys.path.insert(0, path)
 import parserasgeo as prg
 

@@ -1,3 +1,10 @@
+"""
+ArcGIS toolbox interface for twcheck.py
+
+Mike Bannister
+mike.bannister@respec.com
+2017
+"""
 import twcheck
 import arcpy
 import sys

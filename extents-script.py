@@ -1,8 +1,17 @@
+"""
+Uses HEC-RAS output to create floodplain extents as points. Includes interface to 
+ArcGIS toolbox.
+
+Mike Bannister
+mike.bannister@respec.com
+2017
+"""
+
 import arcpy
 import os, sys
 import collections
 import math
-path = os.path.join(os.path.dirname(__file__), 'parserasgeo')
+path = os.path.join(os.path.dirname(__file__), '../parserasgeo')
 sys.path.insert(0, path)
 import parserasgeo as prg
 
