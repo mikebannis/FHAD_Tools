@@ -272,11 +272,11 @@ def iefa_review(geofile, xs_shape_file, xs_id_field, river_field, reach_field, o
                     warn('Warning: Cross section ' + xs_id + ' is multipart. Using part 0.')
 
                 try:
-                    arcpy.AddMessage('"'+str(xs_id)+'/'+river+'/'+reach+'"')
+                    #arcpy.AddMessage('"'+str(xs_id)+'/'+river+'/'+reach+'"')
                     geo_xs = ras_geo.return_xs(xs_id, river, reach, strip=True, rnd=rnd, digits=digits)
                 except prg.CrossSectionNotFound:
-                    warn('Warning: Cross section ' + str(xs_id) + ' is in cross section shape file but is not in ' + \
-                         'the HEC-RAS geometry file. Continuing')
+                    warn('Warning: Cross section ' + str(xs_id) + '/' + str(river) + '/' + str(reach) + \
+                         ' is in cross section shape file but is not in the HEC-RAS geometry file. Continuing')
                     continue
 
                 # Verify presence of IEFA

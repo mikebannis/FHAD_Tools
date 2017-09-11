@@ -9,12 +9,14 @@ import arcpy
 import collections
 import math
 import os
+import sys
 import tempfile
 import time
 
 BFE_ELEV_FIELD = 'Elevation'
 BFE_STA_FIELD = 'Station'
 FIELD_LENGTH = 100
+UNKNOWN = 'Unknown'
 
 BFE = collections.namedtuple('BFE', ['elevation', 'station'])
 channel_point = collections.namedtuple('channel_point', ['X','Y','station'])
@@ -347,8 +349,10 @@ class CreateBFEs(object):
                 channel_points = self._channel_point_list(channel_geo)
 
                 # Loop through all BFE points and create BFE lines
-                with arcpy.da.SearchCursor(BFE_points, ['SHAPE@', BFE_ELEV_FIELD, BFE_STA_FIELD, self.channel_river_field, self.channel_reach_field]) as BFE_pnt_cursor:
-                    with arcpy.da.InsertCursor(self.outfilename, ['SHAPE@', BFE_ELEV_FIELD, BFE_STA_FIELD, self.channel_river_field, self.channel_reach_field]) as BFE_line_cursor:
+                with arcpy.da.SearchCursor(BFE_points, ['SHAPE@', BFE_ELEV_FIELD, BFE_STA_FIELD, self.channel_river_field, 
+                                            self.channel_reach_field]) as BFE_pnt_cursor:
+                    with arcpy.da.InsertCursor(self.outfilename, ['SHAPE@', BFE_ELEV_FIELD, BFE_STA_FIELD, 
+                                                self.channel_river_field, self.channel_reach_field]) as BFE_line_cursor:
                         for BFE_pnt_feature in BFE_pnt_cursor:
                             # Check if the BFE is for the current river/reach
                             if BFE_pnt_feature[3] == river_name and BFE_pnt_feature[4] == reach_name:
@@ -503,7 +507,7 @@ def import_BFE_from_CSV(csv_filename):
         
         Returns RiverSystem object. 
     """
-    ### This should be modified to handle a single reach.
+    ### TODO - This should be modified to handle a single reach. This has been started but needs a LOT more work
     rs = RiverSystem()
     first_lap = True
     river_reach = []
@@ -513,7 +517,7 @@ def import_BFE_from_CSV(csv_filename):
             # Check for header
             if first_lap:
                 first_lap = False
-                if fields[0] == 'River' and fields[1] == 'Reach':
+                if fields[0] == 'River' or fields[0] == 'Reach':
                     try:
                         # Skip second line of header
                         next(infile)
@@ -525,8 +529,26 @@ def import_BFE_from_CSV(csv_filename):
             if fields[3] == '' or fields[4] == '':
                 continue
             # Create/get reach and create cross section
-            current_reach = rs.get_reach(fields[0], fields[1])
-            current_reach.add_XS(fields[2], fields[3], fields[4], fields[5])
+            if len(fields) == 6:
+                # River field is included
+                current_reach = rs.get_reach(fields[0], fields[1])
+                xs_id = fields[2].split()[0]
+                current_reach.add_XS(xs_id, fields[3], fields[4], fields[5])
+            elif len(fields) == 5:
+                # No river field - not supported yet
+                arcpy.AddError('BFE csv file does not appear to have a "River" column. This is currently not' +
+                               ' supported. Please add a "River" column before the "Reach" column. Values in the ' +
+                               '"River" column must match the RiverCode in the alignment shapefile. Thank you')
+                sys.exit()
+                # current_reach = rs.get_reach(UNKNOWN, fields[0])
+                # xs_id = fields[1].split()[0]
+                # current_reach.add_XS(xs_id, fields[2], fields[3], fields[4])
+            else:
+                # Something is wrong
+                arcpy.AddError('Error in line:' + line.strip() +
+                    '\nInput .csv must be in format: [River], Reach, XS_ID, Profile, W.S. Elev, Cum Ch Len ' +
+                    '- Exiting.')
+                sys.exit()
     return rs
         
 def main():

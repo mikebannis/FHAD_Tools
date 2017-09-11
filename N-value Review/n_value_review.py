@@ -14,6 +14,7 @@ sys.path.insert(0, path)
 import parserasgeo as prg
 N_VALUE_FIELD = 'Mannings_n'
 FIELD_LENGTH = 50
+SEGMENT_ID_FIELD = 'segment_id'
 DEBUG = False
 
 
@@ -73,6 +74,7 @@ def _setup_output_shapefile(filename, xs_id_field, river_field, reach_field, spa
         arcpy.AddField_management(filename, river_field, 'TEXT', field_length=FIELD_LENGTH)
         arcpy.AddField_management(filename, reach_field, 'TEXT', field_length=FIELD_LENGTH)
         arcpy.AddField_management(filename, N_VALUE_FIELD, 'FLOAT', '')
+        arcpy.AddField_management(filename, SEGMENT_ID_FIELD, 'TEXT', field_length=FIELD_LENGTH)
     except Exception as e:
         error(str(e))
         error('Unable to create ' + filename +
@@ -206,7 +208,7 @@ def n_value_review(geofile, xs_shape_file, xs_id_field, river_field, reach_field
     num_xs_processed = 0
     with arcpy.da.SearchCursor(xs_shape_file, ['SHAPE@', xs_id_field, river_field, reach_field]) as xs_cursor:
         with arcpy.da.InsertCursor(outfile, ['SHAPE@', xs_id_field, river_field, reach_field,
-                                             N_VALUE_FIELD]) as out_cursor:
+                                             N_VALUE_FIELD, SEGMENT_ID_FIELD]) as out_cursor:
             for xs in xs_cursor:
                 num_xs_gis += 1
                 geo = xs[0]
@@ -224,8 +226,8 @@ def n_value_review(geofile, xs_shape_file, xs_id_field, river_field, reach_field
                 try:
                     geo_xs = ras_geo.return_xs(xs_id, river, reach, strip=True)
                 except prg.CrossSectionNotFound:
-                    warn('Warning: Cross section ' + str(xs_id) + ' is in cross section shape file but is not in ' + \
-                         'the HEC-RAS geometry file. Continuing')
+                    warn('Warning: Cross section ' + str(xs_id) + '/' + str(river) + '/' + str(reach) + \
+                         ' is in cross section shape file but is not in the HEC-RAS geometry file. Continuing')
                     continue
 
                 # Check for duplicate n-values
@@ -252,8 +254,9 @@ def n_value_review(geofile, xs_shape_file, xs_id_field, river_field, reach_field
                     continue
 
                 num_xs_processed += 1
-                for n_line in n_lines:
-                    out_cursor.insertRow([n_line[0], xs_id, river, reach, n_line[1]])
+                for i, n_line in enumerate(n_lines):
+                    seg_id = river + '-' + reach + '-' + str(xs_id) + '-' + str(i) + '-' + str(n_line[1])
+                    out_cursor.insertRow([n_line[0], xs_id, river, reach, n_line[1], seg_id])
 
     warn('There are ' + str(num_xs_ras_geo) + ' cross sections in the HEC-RAS geometry and ' + str(num_xs_gis) + \
          ' cross sections in the cross section shape file. ' + str(num_xs_processed) + ' cross sections were' + \

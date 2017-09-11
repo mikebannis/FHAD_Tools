@@ -5,6 +5,7 @@ ArcGIS toolbox.
 Mike Bannister
 mike.bannister@respec.com
 2017
+version 0.11
 """
 
 import arcpy
@@ -39,12 +40,14 @@ def import_extents(infilename):
                 fields = line.strip().split(',')
                 # Starts with 'River'
                 if len(fields) == 7:
-                    new_extent = WS_extent(fields[0], fields[1], float(fields[2]), fields[3], float(fields[4]), 
+                    xs_id = float(fields[2].split()[0])  # Strip name from xs ID if present
+                    new_extent = WS_extent(fields[0], fields[1], xs_id, fields[3], float(fields[4]), 
                                 float(fields[5]), float(fields[6]))
                 # Starts with 'Reach'
                 elif len(fields) == 6:
                     arcpy.AddMessage(str(fields))
-                    new_extent = WS_extent('Unknown', fields[0], float(fields[1]), fields[2], float(fields[3]), 
+                    xs_id = float(fields[1].split()[0])  # Strip name from xs ID if present
+                    new_extent = WS_extent('Unknown', fields[0], xs_id, fields[2], float(fields[3]), 
                             float(fields[4]), float(fields[5]))
                 else:
                     arcpy.AddError('Error in line:' + line.strip() +
@@ -53,6 +56,7 @@ def import_extents(infilename):
                     sys.exit()
                 extents_list.append(new_extent)
     return extents_list
+
 
 def same_cross_section(XS_1, XS_2, round_stationing, round_digits):
     """ 

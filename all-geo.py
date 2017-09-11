@@ -9,12 +9,12 @@ mike.bannister@respec.com
 2017
 """
 
+# TODO - All Tools: search for missing reaches in GIS vs RAS
+
 import arcpy
 import sys
 import os
 path = os.path.join(os.path.dirname(__file__))
-#arcpy.AddWarning('test test test')
-#arcpy.AddWarning(str(path))
 sys.path.insert(0, os.path.join(path, 'Block Obs Review'))
 sys.path.insert(0, os.path.join(path, 'IEFA Review'))
 sys.path.insert(0, os.path.join(path, 'N-value Review'))
