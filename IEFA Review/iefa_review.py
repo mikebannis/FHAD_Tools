@@ -162,8 +162,24 @@ def _create_iefa_lines(line_geo, geo_xs):
     first_point = xs_points[0]
     combo_points = [IefaPoint(first_point.X, first_point.Y, 0, first_n_value[1])]
 
+    #message('XS -----' + str(geo_xs.header.xs_id))
+    #message(str(iefa_values))
+
     # Extract rest of the n-values
     for station, n_value, _ in iefa_values:
+        # Look out for IEFA changes that exceed length of the cut line
+        if station > line_geo.length:
+            if station - line_geo.length > 0.1:  # small errors are caused by rounding
+                warn('At XS {}, IEFA station {},'.format(geo_xs.header.xs_id, station) + \
+                     ' exceeds length of GIS cutline ({})'.format(line_geo.length) + \
+                     '. Changing station to match end of line.')
+            station = line_geo.length
+        # positionAlongLine doesn't like negative stations
+        if station < 0:
+            warn('At XS {}, IEFA station {},'.format(geo_xs.header.xs_id, station) + \
+                 ' is being reset to zero.')
+            station = 0
+
         new_point = line_geo.positionAlongLine(station).firstPoint
         new_point = IefaPoint(new_point.X, new_point.Y, station, n_value)
         combo_points.append(new_point)
@@ -301,7 +317,7 @@ def iefa_review(geofile, xs_shape_file, xs_id_field, river_field, reach_field, o
 
     warn('There are ' + str(num_xs_ras_geo) + ' cross sections in the HEC-RAS geometry and ' + str(num_xs_gis) + \
          ' cross sections in the cross section shape file. ' + str(num_xs_processed) + ' cross sections were' + \
-         ' successfully converted into surface roughness review lines.')
+         ' successfully converted into IEFA review lines.')
 
 
 def main():

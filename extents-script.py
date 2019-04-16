@@ -30,7 +30,7 @@ def import_extents(infilename):
             # Ignore header if it exists
             if first_lap == True:
                 fields = line.strip().split(',')
-                if fields[0] == 'River' or fields[0] == 'Reach':
+                if fields[0].find('River') > -1 or fields[0].find('Reach') > -1:  # Compatibility with '\xef\xbb\xbf' for UTF-8
                     line = next(infile)
                     line = next(infile)
                 first_lap = False
@@ -40,6 +40,7 @@ def import_extents(infilename):
                 fields = line.strip().split(',')
                 # Starts with 'River'
                 if len(fields) == 7:
+                    arcpy.AddMessage(str(fields))
                     xs_id = float(fields[2].split()[0])  # Strip name from xs ID if present
                     new_extent = WS_extent(fields[0], fields[1], xs_id, fields[3], float(fields[4]), 
                                 float(fields[5]), float(fields[6]))
