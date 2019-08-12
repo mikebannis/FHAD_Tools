@@ -224,6 +224,13 @@ def n_value_review(geofile, xs_shape_file, xs_id_field, river_field, reach_field
 
                 # Get RAS cross section
                 try:
+                    if type(xs_id) is str or type(xs_id) is unicode:
+                        warn('Cross section station for ' + str(xs_id) + ' is a string in GIS data, trying to cast to a number')
+                        try:
+                            xs_id = float(xs_id)
+                        except ValueError:
+                            error('Unable to convert XS station ' + str(xs_id) + ' to a number. Please remove any characters from the station ')
+                            sys.exit()
                     geo_xs = ras_geo.return_xs(xs_id, river, reach, strip=True)
                 except prg.CrossSectionNotFound:
                     warn('Warning: Cross section ' + str(xs_id) + '/' + str(river) + '/' + str(reach) + \
@@ -256,6 +263,7 @@ def n_value_review(geofile, xs_shape_file, xs_id_field, river_field, reach_field
                 num_xs_processed += 1
                 for i, n_line in enumerate(n_lines):
                     seg_id = river + '-' + reach + '-' + str(xs_id) + '-' + str(i) + '-' + str(n_line[1])
+                    #message([n_line[0], xs_id, river, reach, n_line[1], seg_id])
                     out_cursor.insertRow([n_line[0], xs_id, river, reach, n_line[1], seg_id])
 
     warn('There are ' + str(num_xs_ras_geo) + ' cross sections in the HEC-RAS geometry and ' + str(num_xs_gis) + \

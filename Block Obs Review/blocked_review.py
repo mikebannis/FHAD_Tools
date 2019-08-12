@@ -273,6 +273,13 @@ def obstruction_review(geofile, xs_shape_file, xs_id_field, river_field, reach_f
                     warn('Warning: Cross section ' + xs_id + ' is multipart. Using part 0.')
 
                 try:
+                    if type(xs_id) is str or type(xs_id) is unicode:
+                        warn('Cross section station for ' + str(xs_id) + ' is a string in GIS data, trying to cast to a number')
+                        try:
+                            xs_id = float(xs_id)
+                        except ValueError:
+                            error('Unable to convert XS station ' + str(xs_id) + ' to a number. Please remove any characters from the station ')
+                            sys.exit()
                     geo_xs = ras_geo.return_xs(xs_id, river, reach, strip=True)
                     # ras_geo = prg_old.return_xs(geo_list, xs_id, river, reach)
                 except prg.CrossSectionNotFound:
