@@ -518,6 +518,9 @@ def import_BFE_from_CSV(csv_filename):
             if first_lap:
                 first_lap = False
                 if fields[0] == 'River' or fields[0] == 'Reach':
+                    if not check_header(fields):
+                        arcpy.AddWarning('Header error!')
+                        csv_format_error(line)
                     try:
                         # Skip second line of header
                         next(infile)
@@ -545,12 +548,35 @@ def import_BFE_from_CSV(csv_filename):
                 # current_reach.add_XS(xs_id, fields[2], fields[3], fields[4])
             else:
                 # Something is wrong
-                arcpy.AddError('Error in line:' + line.strip() +
-                    '\nInput .csv must be in format: [River], Reach, XS_ID, Profile, W.S. Elev, Cum Ch Len ' +
-                    '- Exiting.')
-                sys.exit()
+                csv_format_error(line)
     return rs
-        
+
+def csv_format_error(line):
+    ''' Report error in CSV header format '''
+    arcpy.AddError('Error in line:' + line.strip() +
+        '\nInput .csv must be in format: River, Reach, River Sta, Profile, W.S. Elev, Cum Ch Len ' +
+        '- Exiting.')
+    sys.exit()
+
+def check_header(fields):
+    '''
+    Check if values in fields represent correct column headers from RAS. 
+    
+    :param fields: list of strings, first row of BFE csv file
+    :returns: True if ok, False if not
+    '''
+    if len(fields) == 6:
+        if fields[0] == 'River' and fields[1] == 'Reach' and \
+        fields[2] == 'River Sta' and fields[3] == 'Profile' and \
+        fields[4] == 'W.S. Elev' and fields[5] == 'Cum Ch Len':
+            return True
+    elif len(fields) == 5:
+        if fields[0] == 'Reach' and \
+        fields[1] == 'River Sta' and fields[2] == 'Profile' and \
+        fields[3] == 'W.S. Elev' and fields[4] == 'Cum Ch Len':
+            return True
+    return False
+     
 def main():
     # Process parameters
     BFE_file = arcpy.GetParameterAsText(0)
